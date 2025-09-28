@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(SiswaSeeder::class);
+        $this->call(NilaiSeeder::class);
 
         User::factory()->create([
             'name' => 'Demo Admin',
