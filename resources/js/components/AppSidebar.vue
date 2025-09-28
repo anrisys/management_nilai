@@ -12,7 +12,6 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import nilai from '@/routes/nilai';
 import siswa from '@/routes/siswa';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
@@ -22,7 +21,7 @@ import AppLogo from './AppLogo.vue';
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: nilai.index(),
+        href: dashboard(),
         icon: BookA,
     },
     {

@@ -5,10 +5,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Nilai;
 use App\Models\Siswa;
+use App\Exports\NilaiExport;
+use App\Imports\NilaiImport;
 use App\Http\Requests\StoreNilaiRequest;
 use App\Http\Requests\UpdateNilaiRequest;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Facades\Excel;
 
 class NilaiController extends Controller
 {
@@ -85,7 +90,7 @@ class NilaiController extends Controller
         try {
             Nilai::create($request->validated());
             
-            return redirect()->route('nilai.index')
+            return redirect()->route('dashboard')
                 ->with('success', 'Data nilai berhasil ditambahkan!');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -130,7 +135,7 @@ class NilaiController extends Controller
                 'nilai' => $request->nilai
             ]);
             
-            return redirect()->route('nilai.index')
+            return redirect()->route('dashboard')
                 ->with('success', 'Data nilai berhasil diperbarui!');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -146,7 +151,7 @@ class NilaiController extends Controller
         try {
             $nilai->delete();
             
-            return redirect()->route('nilai.index')
+            return redirect()->route('dashboard')
                 ->with('success', 'Data nilai berhasil dihapus!');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -168,5 +173,71 @@ class NilaiController extends Controller
             'siswa' => $siswa,
             'nilais' => $nilais,
         ]);
+    }
+
+    /**
+     * Export data to Excel
+     */
+    public function export()
+    {
+        return Excel::download(new NilaiExport, 'data-nilai-' . date('Y-m-d') . '.xlsx');
+    }
+
+    /**
+     * Import data from Excel
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls|max:10240' // 10MB max
+        ]);
+
+        try {
+            Excel::import(new NilaiImport, $request->file('file'));
+            
+            return redirect()->route('nilai.index')
+                ->with('success', 'Data berhasil diimport!');
+                
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Error importing data: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download template Excel
+     */
+    public function downloadTemplate()
+    {
+        $templateData = [
+            ['No', 'nama', 'kelas', 'mapel', 'nilai'],
+            [1, 'Andi', '7A', 'Matematika', 80],
+            [2, 'Andi', '7A', 'Bahasa Indonesia', 70],
+            [3, 'Budi', '7A', 'Matematika', 60],
+            [4, 'Budi', '7A', 'Bahasa Indonesia', 75],
+            [5, 'Citra', '7B', 'Matematika', 90],
+            [6, 'Citra', '7B', 'Bahasa Indonesia', 85],
+        ];
+
+        $export = new class($templateData) implements FromArray, WithHeadings {
+            private $data;
+
+            public function __construct($data)
+            {
+                $this->data = $data;
+            }
+
+            public function array(): array
+            {
+                return $this->data;
+            }
+
+            public function headings(): array
+            {
+                return $this->data[0];
+            }
+        };
+
+        return Excel::download($export, 'template-import-nilai.xlsx');
     }
 }

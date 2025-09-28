@@ -17,9 +17,15 @@ export interface NavItem {
     isActive?: boolean;
 }
 
+export interface FlashMessages {
+    success?: string;
+    error?: string;
+}
+
 export type AppPageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {
+    flash?: FlashMessages;
     name: string;
     quote: { message: string; author: string };
     auth: Auth;

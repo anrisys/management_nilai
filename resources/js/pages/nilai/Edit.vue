@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import Input from '@/components/ui/input/Input.vue';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
-import nilai from '@/routes/nilai';
+import { dashboard } from '@/routes';
+import nilaiRoutes from '@/routes/nilai';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/vue3';
 
@@ -36,11 +37,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
     {
         title: 'Data Nilai',
-        href: nilai.index().url,
+        href: nilaiRoutes.index().url,
     },
     {
         title: 'Edit Nilai',
-        href: nilai.edit({ nilai: props.nilai.id }).url,
+        href: nilaiRoutes.edit({ nilai: props.nilai.id }).url,
     },
 ];
 
@@ -50,25 +51,23 @@ const form = useForm({
 });
 
 const handleSubmit = () => {
-    // Convert nilai to number dan pastikan bertipe integer
-    const formData = {
-        nilai: parseInt(form.nilai),
-    };
+    // Convert nilai to number
+    const numericNilai = parseInt(form.nilai);
 
     // Validasi client-side sebelum kirim
-    if (isNaN(formData.nilai) || formData.nilai < 0 || formData.nilai > 100) {
+    if (isNaN(numericNilai) || numericNilai < 0 || numericNilai > 100) {
         form.setError('nilai', 'Nilai harus antara 0-100');
         return;
     }
 
-    form.put(nilai.update({ nilai: props.nilai.id }).url, {
-        data: formData,
+    form.put(nilaiRoutes.update({ nilai: props.nilai.id }).url, {
         onSuccess: () => {
-            router.visit(nilai.index());
+            router.visit(dashboard());
         },
         onError: (errors) => {
             console.error('Error updating nilai:', errors);
-            // Errors akan otomatis ditampilkan di form.errors
+            // Reset ke string untuk input
+            form.nilai = numericNilai.toString();
         },
     });
 };
@@ -247,7 +246,7 @@ const clearError = () => {
 
                     <Button
                         type="button"
-                        @click="router.visit(nilai.index())"
+                        @click="router.visit(dashboard())"
                         class="rounded-lg bg-gray-500 px-6 py-2 text-white hover:bg-gray-600"
                     >
                         Batal

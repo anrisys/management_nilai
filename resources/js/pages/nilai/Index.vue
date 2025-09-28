@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import ImportExportNilai from '@/components/ui/ImportExportNilai.vue';
 import {
     Table,
     TableBody,
@@ -144,6 +145,7 @@ const formatDate = (dateString: string) => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-6">
+            <ImportExportNilai />
             <!-- Flash success -->
             <div v-if="page.props.flash?.success" class="mb-4">
                 <Alert class="border-green-400 bg-green-100 text-green-800">
